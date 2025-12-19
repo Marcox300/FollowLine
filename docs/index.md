@@ -1,4 +1,3 @@
-# Robot Siguelíneas con Comunicación IoT
 
 ![Estado del Proyecto](https://img.shields.io/badge/estado-completado-success)
 ![Plataforma](https://img.shields.io/badge/plataforma-Arduino%20%2B%20ESP32-blue)
