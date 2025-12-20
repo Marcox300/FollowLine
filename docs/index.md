@@ -82,7 +82,6 @@ Indicador visual del estado del robot mediante un LED RGB direccionable.
 **Especificaciones:**
 - **Tipo:** WS2812B (NeoPixel)
 - **Control:** Pin 4 (Arduino)
-- **Librería:** FastLED
 
 **Código de colores del sistema:**
 
@@ -135,7 +134,7 @@ El ESP32 envía automáticamente mensajes PING cada **4 segundos**.
 
 ### Protocolo MQTT
 
-MQTT (Message Queuing Telemetry Transport) es un protocolo de mensajería ligero diseñado para dispositivos IoT con recursos limitados.
+MQTT (Message Queuing Telemetry Transport), se trata del protocolo de mensajería ligero utilizado por el esp32
 
 #### Formato de Mensajes
 
@@ -179,10 +178,9 @@ El Arduino implementa **multitarea cooperativa** utilizando FreeRTOS, permitiend
 | `move_task` | 10 ms | 256 bytes | 2 (Media) | Control PID y FSM |
 
 **Ventajas del enfoque RTOS:**
-- Lectura continua del ultrasonido sin interferir con el control de motores
-- Detección inmediata de obstáculos (prioridad alta)
-- Código modular y fácil de mantener
-- Uso eficiente de recursos limitados
+- Permite que se este leyendo de manera casi constante el ultrasonido, lo cual es imoprescindible para la detección del obstáculo final.
+- La gestión del código se realiza de manera modular, lo que facilita mucho la modificación del sistema.
+- El principal motivo del uso de FreeRTOS es poder gestionar todos los sensores y actuadores implicados con la mayor eficiencia posible y así lograr más velocidad en el sigue líneas.
 
 ### Máquina de Estados Finita (FSM)
 
@@ -195,40 +193,10 @@ enum class RobotState : uint8_t {
 };
 ```
 
-#### Diagrama de Transiciones
-```
-                    ┌─────────────────┐
-         ┌─────────►│ SEGUIR_LINEA    │◄──────────┐
-         │          │                 │           │
-         │          │ • Control PID   │           │
-         │          │ • LED Verde     │           │
-         │          └────────┬────────┘           │
-         │                   │                    │
-         │        línea NO detectada    línea detectada
-         │                   │                    │
-         │                   ▼                    │
-         │          ┌─────────────────┐           │
-         │          │ LINEA_PERDIDA   │───────────┘
-         │          │                 │
-         │          │ • Giro búsqueda │
-         │          │ • LED Rojo      │
-         │          └────────┬────────┘
-         │                   │
-         │          obstáculo detectado
-         │                   │
-         │                   ▼
-         │          ┌─────────────────┐
-         └──────────│ OBSTACULO       │
-                    │ DETECTADO       │
-                    │                 │
-                    │ • Detención     │
-                    │ • LED Blanco    │
-                    └─────────────────┘
-```
-
 ### Control PID Simplificado (PD)
 
-El algoritmo de control implementado es un **controlador PD (Proporcional-Derivativo)** optimizado para seguimiento de línea.
+El algoritmo de control implementado es un **controlador PD (Proporcional-Derivativo)** optimizado para seguimiento de línea. Al principio se había configurado un PID, pero se comprobó experimental que la parte integral era totalmente prescindible.
+
 
 #### Algoritmo PD
 ```cpp
