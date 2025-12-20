@@ -2,7 +2,7 @@
 
 ---
 
-## 📋 Tabla de Contenidos
+## Tabla de Contenidos
 
 - [Introducción y Objetivos](#-introducción-y-objetivos)
 - [Sensores](#-sensores)
@@ -26,11 +26,11 @@
 
 Se encuentran todas las especificaciones y objetivos del proyecto en la wiki de la página:
 
-📚 **Documentación completa:** [Wiki del Proyecto - P4FollowLine](https://gitlab.eif.urjc.es/roberto.calvo/setr/-/wikis/P4FollowLine)
+ **Documentación completa:** [Wiki del Proyecto - P4FollowLine](https://gitlab.eif.urjc.es/roberto.calvo/setr/-/wikis/P4FollowLine)
 
 ---
 
-## 📡 Sensores
+##  Sensores
 
 ### Sensores Infrarrojos ITR20001 (×3)
 
@@ -88,7 +88,7 @@ La implementación de este LED se ha realizado mediante la librería **FastLED.h
 
 ---
 
-## 🌐 ESP32-CAM
+##  ESP32-CAM
 
 El ESP32-CAM gestiona la conectividad WiFi y la publicación de mensajes MQTT al servidor remoto.
 
@@ -170,10 +170,10 @@ El Arduino implementa **multitarea cooperativa** utilizando FreeRTOS, permitiend
 | `move_task` | 10 ms | 256 bytes | 2 (Media) | Control PID y FSM |
 
 **Ventajas del enfoque RTOS:**
-- ✅ Lectura continua del ultrasonido sin interferir con el control de motores
-- ✅ Detección inmediata de obstáculos (prioridad alta)
-- ✅ Código modular y fácil de mantener
-- ✅ Uso eficiente de recursos limitados
+- Lectura continua del ultrasonido sin interferir con el control de motores
+- Detección inmediata de obstáculos (prioridad alta)
+- Código modular y fácil de mantener
+- Uso eficiente de recursos limitados
 
 ### Máquina de Estados Finita (FSM)
 
@@ -341,8 +341,8 @@ Se activa cuando el ultrasonido detecta objeto a ≤10 cm.
 <div align="center">
 
 
-📚 [Wiki del Proyecto](https://gitlab.eif.urjc.es/roberto.calvo/setr/-/wikis/P4FollowLine)
+ [Wiki del Proyecto](https://gitlab.eif.urjc.es/roberto.calvo/setr/-/wikis/P4FollowLine)
 
-[⬆️ Volver arriba](#robot-siguelíneas-con-comunicación-iot)
+[ Volver arriba](#robot-siguelíneas-con-comunicación-iot)
 
 </div>
