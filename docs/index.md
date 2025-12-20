@@ -2,9 +2,9 @@
 
 ---
 
-![Imagen 1](imagenes/imagen1.jpeg)
+![Imagen 1](/img/imagen1.jpeg)
 
-![Imagen 2](imagenes/imagen2.jpeg)
+![Imagen 2](/img/imagen2.jpeg)
 
 ---
 
