@@ -1,11 +1,3 @@
-
-![Estado del Proyecto](https://img.shields.io/badge/estado-completado-success)
-![Plataforma](https://img.shields.io/badge/plataforma-Arduino%20%2B%20ESP32-blue)
-![Comunicación](https://img.shields.io/badge/protocolo-MQTT-orange)
-![RTOS](https://img.shields.io/badge/RTOS-FreeRTOS-red)
-
-Sistema de robot autónomo siguelíneas con arquitectura dual (Arduino UNO + ESP32-CAM), comunicación IoT mediante MQTT, control PID, detección de obstáculos y recuperación automática de línea perdida.
-
 **Equipo:** ER404 | **ID:** 1
 
 ---
@@ -29,10 +21,6 @@ Sistema de robot autónomo siguelíneas con arquitectura dual (Arduino UNO + ESP
   - [Estado: OBSTACULO_DETECTADO](#estado-obstaculo_detectado--blanco)
 
 ---
-
-## 📖 Introducción y Objetivos
-
-Este proyecto implementa un **robot siguelíneas autónomo** desarrollado como parte de la asignatura de Sistemas Empotrados y de Tiempo Real (SETR) de la Universidad Rey Juan Carlos.
 
 ### Objetivos del Proyecto
 
@@ -121,18 +109,6 @@ enum class SystemState {
   RUNNING             // Operación normal
 };
 ```
-
-#### 2. Comunicación Serie con Arduino
-
-El ESP32 utiliza **Serial2** (hardware UART) para comunicarse con el Arduino:
-
-```cpp
-#define RXD2 33  // GPIO33 - RX
-#define TXD2 4   // GPIO4  - TX
-
-Serial2.begin(115200, SERIAL_8N1, RXD2, TXD2);
-```
-
 #### 3. Handshake de Sincronización
 
 El ESP32 **no permite que el robot inicie** hasta confirmar conectividad completa. El sistema implementa un mecanismo de handshake donde el Arduino envía mensajes START_LAP que son ignorados hasta que el ESP32 confirma:
@@ -147,35 +123,9 @@ El ESP32 envía automáticamente mensajes PING cada **4 segundos**.
 
 **Nota importante:** Al principio del proyecto se había implementado la tarea de PING en el Arduino, pero finalmente se vio que era mejor su control exclusivo en el ESP32, para aumentar la capacidad de respuesta del robot.
 
-```cpp
-void handlePing() {
-  if (!lap_active || lap_finished) return;
-  
-  unsigned long current_time = millis();
-  
-  if (current_time - last_ping_time >= 4000) {
-    unsigned long elapsed = current_time - lap_start_time;
-    publishMQTT(MsgType::PING, elapsed);
-    last_ping_time = current_time;
-  }
-}
-```
-
 ### Protocolo MQTT
 
 MQTT (Message Queuing Telemetry Transport) es un protocolo de mensajería ligero diseñado para dispositivos IoT con recursos limitados.
-
-#### Configuración del Broker
-
-```cpp
-#define MQTT_SERVER "193.147.79.118"  // teachinghub.eif.urjc.es
-#define MQTT_PORT   21883
-#define MQTT_TOPIC  "/SETR/2025/1/"
-
-WiFiClient client;
-Adafruit_MQTT_Client mqtt(&client, MQTT_SERVER, MQTT_PORT);
-Adafruit_MQTT_Publish publisher = Adafruit_MQTT_Publish(&mqtt, MQTT_TOPIC);
-```
 
 #### Formato de Mensajes
 
@@ -206,25 +156,13 @@ Todos los mensajes se publican en **formato JSON**:
 
 ---
 
-## 🤖 Arduino UNO
-
-El Arduino UNO es el **cerebro del robot**, encargado del control en tiempo real de todos los sensores y actuadores.
+##  Arduino UNO
 
 ### Sistema de Tiempo Real con FreeRTOS
 
 El Arduino implementa **multitarea cooperativa** utilizando FreeRTOS, permitiendo ejecutar múltiples tareas concurrentes sin bloqueos.
 
 #### Tareas Implementadas
-
-```cpp
-void setup() {
-  // Tarea 1: Lectura continua del ultrasonido
-  xTaskCreate(ultrasonic_task, "Ultrasonic", 128, NULL, 3, NULL);
-  
-  // Tarea 2: Control de movimiento y FSM
-  xTaskCreate(move_task, "Move", 256, NULL, 2, NULL);
-}
-```
 
 | Tarea | Periodo | Stack | Prioridad | Función |
 |-------|---------|-------|-----------|---------|
@@ -294,71 +232,15 @@ const float Kd = 96.0;   // Ganancia derivativa
 
 // Cálculo de la salida PD
 float pd_output = Kp * error + Kd * (error - last_error);
-
-// Velocidad adaptativa según error
-if (abs(error) >= 2) {
-  base_speed = 90;   // Reducir velocidad en curvas cerradas
-} else {
-  base_speed = 120;  // Velocidad normal en rectas
-}
-
-// Ajuste diferencial de motores
-motor_left  = constrain(base_speed - pd_output, 0, max_speed);
-motor_right = constrain(base_speed + pd_output, 0, max_speed);
-
-// Aplicar a motores
-analogWrite(PIN_Motor_PWMA, motor_right);
-digitalWrite(PIN_Motor_AIN_1, HIGH);
-analogWrite(PIN_Motor_PWMB, motor_left);
-digitalWrite(PIN_Motor_BIN_1, HIGH);
-
-// Guardar error para siguiente iteración
-last_error = error;
 ```
 
 **Explicación de parámetros:** Los valores de Kp y Kd se obtuvieron mediante prueba y error. Inicialmente se usó Kp=500, pero el robot no corregía suficientemente rápido en curvas. Al incrementar a 960, las correcciones fueron más agresivas y el seguimiento mejoró significativamente.
-
-**¿Por qué PD y no PID completo?**
-- El término integral (I) no es necesario porque el sistema no presenta error en estado estacionario significativo
-- Simplifica el código y reduce carga computacional
-- El término derivativo (D) proporciona suficiente estabilidad en curvas
-
-### Comportamiento de Recuperación de Línea
-
-Cuando se detecta pérdida de línea (`!l && !m && !r`), el robot entra en modo búsqueda:
-
-```cpp
-case RobotState::LINEA_PERDIDA:
-{
-  // Girar hacia el lado donde se vio la línea por última vez
-  if (last_valid_error < 0) {
-    // Última detección a la izquierda → girar izquierda
-    motor_left = 0;
-    motor_right = search_speed;  // 240 PWM
-  } else {
-    // Última detección a la derecha → girar derecha
-    motor_left = search_speed;
-    motor_right = 0;
-  }
-  
-  leds[0] = CRGB::Red;
-  FastLED.show();
-  break;
-}
-```
-
-**Estrategia de búsqueda:**
+**Estrategia de búsqueda para cuando se pierde la línea:**
 1. Memoriza el `last_valid_error` cuando detecta línea
 2. Al perder la línea, gira en dirección al último error
 3. Gira sobre su propio eje (un motor parado, otro a velocidad máxima)
 4. Envía mensajes MQTT: `LINE_LOST`, `INIT_LINE_SEARCH`
 5. Al re-detectar línea: `LINE_FOUND`, `STOP_LINE_SEARCH`
-
-**Ventajas:**
-- ⚡ Recuperación más rápida que búsqueda aleatoria
-- 🎯 Aprovecha la inercia del movimiento
-- ⏱️ Tiempo límite: 5 segundos máximo
-
 ---
 
 ## 🔌 Protocolo de Comunicación Serie
@@ -397,19 +279,9 @@ enum class MsgType : uint8_t {
   VISIBLE_LINE        = 8   // Arduino → ESP32 (opcional)
 };
 ```
+## Operación del Robot
 
-**Características del protocolo:**
-- 🔒 Marcadores de inicio/fin para sincronización
-- ✅ Validación de integridad
-- 🔄 Recuperación ante pérdida de sincronización
-- ⚡ Transmisión a 115200 baudios
-- 📦 Tamaño fijo de 7 bytes por mensaje
-
----
-
-## 🎮 Operación del Robot
-
-### Estado: SEGUIR_LINEA (🟢 Verde)
+### Estado: SEGUIR_LINEA ( Verde)
 
 **Descripción:**
 - Robot sigue la línea con control PID
@@ -423,7 +295,7 @@ enum class MsgType : uint8_t {
 
 ---
 
-### Estado: LINEA_PERDIDA (🔴 Rojo)
+### Estado: LINEA_PERDIDA ( Rojo)
 
 Se activa cuando los 3 sensores IR no detectan línea.
 
@@ -451,7 +323,7 @@ Se activa cuando los 3 sensores IR no detectan línea.
 
 ---
 
-### Estado: OBSTACULO_DETECTADO (⚪ Blanco)
+### Estado: OBSTACULO_DETECTADO ( Blanco)
 
 Se activa cuando el ultrasonido detecta objeto a ≤10 cm.
 
@@ -468,9 +340,6 @@ Se activa cuando el ultrasonido detecta objeto a ≤10 cm.
 
 <div align="center">
 
-**🤖 Robot Siguelíneas ER404 - SETR 2024/2025 🏁**
-
-*Desarrollado con ❤️ y muchas horas de debugging*
 
 📚 [Wiki del Proyecto](https://gitlab.eif.urjc.es/roberto.calvo/setr/-/wikis/P4FollowLine)
 
