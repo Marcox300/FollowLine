@@ -312,13 +312,11 @@ Se activa cuando los 3 sensores IR no detectan línea.
 1. Envía STOP_LINE_SEARCH → MQTT
 2. Envía LINE_FOUND → MQTT
 3. Vuelve a estado SEGUIR_LINEA
-4. Bonificación: -2% en tiempo final
 ```
 
 **Si NO recupera en 5s:**
 ```
-1. Test se da por finalizado
-2. Vuelta declarada nula
+1. No se contempla esa posibilidad, significaría el suspenso.
 ```
 
 ---
