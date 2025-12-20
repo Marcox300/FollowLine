@@ -303,6 +303,14 @@ Se activa cuando el ultrasonido detecta objeto a ≤10 cm.
 ```
 
 ---
+# Video
+
+<video width="640" height="360" controls>
+  <source src="video/batirobot.mp4" type="video/mp4">
+  Tu navegador no soporta el video.
+</video>
+
+---
 
 <div align="center">
 
