@@ -243,7 +243,7 @@ float pd_output = Kp * error + Kd * (error - last_error);
 5. Al re-detectar línea: `LINE_FOUND`, `STOP_LINE_SEARCH`
 ---
 
-## 🔌 Protocolo de Comunicación Serie
+## Protocolo de Comunicación Serie
 
 El sistema implementa un protocolo binario personalizado para la comunicación entre Arduino y ESP32.
 
