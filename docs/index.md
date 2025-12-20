@@ -2,6 +2,16 @@
 
 ---
 
+<div align="center">
+
+![Imagen 1](docs/imagenes/imagen1.jpeg)
+
+![Imagen 2](docs/imagenes/imagen2.jpeg)
+
+</div>
+
+---
+
 ## Tabla de Contenidos
 
 - [Introducción y Objetivos](#-introducción-y-objetivos)
@@ -130,7 +140,6 @@ MQTT (Message Queuing Telemetry Transport) es un protocolo de mensajería ligero
 #### Formato de Mensajes
 
 Todos los mensajes se publican en **formato JSON**:
-
 ```json
 {
   "team_name": "ER404",
@@ -178,7 +187,6 @@ El Arduino implementa **multitarea cooperativa** utilizando FreeRTOS, permitiend
 ### Máquina de Estados Finita (FSM)
 
 El robot opera mediante una FSM con 3 estados principales:
-
 ```cpp
 enum class RobotState : uint8_t {
   SEGUIR_LINEA,          // Estado 0: Operación normal
@@ -188,7 +196,6 @@ enum class RobotState : uint8_t {
 ```
 
 #### Diagrama de Transiciones
-
 ```
                     ┌─────────────────┐
          ┌─────────►│ SEGUIR_LINEA    │◄──────────┐
@@ -224,7 +231,6 @@ enum class RobotState : uint8_t {
 El algoritmo de control implementado es un **controlador PD (Proporcional-Derivativo)** optimizado para seguimiento de línea.
 
 #### Algoritmo PD
-
 ```cpp
 // Parámetros del controlador (ajustados experimentalmente)
 const float Kp = 960.0;  // Ganancia proporcional
@@ -250,7 +256,6 @@ El sistema implementa un protocolo binario personalizado para la comunicación e
 ### Estructura del Mensaje
 
 Ambos microcontroladores usan un protocolo de **7 bytes** con marcadores de inicio/fin:
-
 ```cpp
 #define START_BYTE 0xAA
 #define END_BYTE   0x55
@@ -265,7 +270,6 @@ struct __attribute__((packed)) Message {
 ```
 
 ### Tipos de Mensajes
-
 ```cpp
 enum class MsgType : uint8_t {
   START_LAP           = 0,  // Arduino → ESP32
