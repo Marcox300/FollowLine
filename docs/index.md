@@ -2,13 +2,9 @@
 
 ---
 
-<div align="center">
-
 ![Imagen 1](imagenes/imagen1.jpeg)
 
 ![Imagen 2](imagenes/imagen2.jpeg)
-
-</div>
 
 ---
 
