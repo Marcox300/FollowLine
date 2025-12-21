@@ -1,4 +1,4 @@
-**Equipo:** ER404 | **ID:** 1
+**Equipo:** ER404 | **ID:** 1 | **Nombre del robot:** Batirobot
 
 ---
 
