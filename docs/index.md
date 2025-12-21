@@ -170,7 +170,7 @@ El Arduino implementa **multitarea cooperativa** utilizando FreeRTOS, permitiend
 
 | Tarea | Periodo | Stack | Prioridad | Función |
 |-------|---------|-------|-----------|---------|
-| `ultrasonic_task` | 30 ms | 128 bytes | 3 (Alta) | Medir distancia constantemente |
+| `ultrasonic_task` | 25 ms | 128 bytes | 3 (Alta) | Medir distancia constantemente |
 | `move_task` | 10 ms | 256 bytes | 2 (Media) | Control PID y FSM |
 
 Observación: en la tarea de ultrasonido, cuando el sensor no detecta un obstáculo dentro de su rango programado, arroja un valor de 999 como distancia. Se destaca este hecho por haber sucedido en el examen durante la vuelta más rápida. El coche derrapo al final y los sensores quedaron apuntando a la nada.El esp32 arrojo los datos relacionados con esta medida.
@@ -262,7 +262,7 @@ enum class MsgType : uint8_t {
 **Comportamiento esperado:**
 - Movimiento suave en rectas
 - Correcciones rápidas en curvas
-- Velocidad adaptativa (90-120 PWM)
+- Velocidad base: 120 PWM
 
 ---
 
@@ -275,7 +275,6 @@ Se activa cuando los 3 sensores IR no detectan línea.
 1. Envía mensaje LINE_LOST → MQTT
 2. Envía INIT_LINE_SEARCH → MQTT
 3. Gira hacia el último lado detectado
-4. Tiempo límite: 5 segundos
 ```
 
 **Si recupera la línea:**
@@ -283,11 +282,6 @@ Se activa cuando los 3 sensores IR no detectan línea.
 1. Envía STOP_LINE_SEARCH → MQTT
 2. Envía LINE_FOUND → MQTT
 3. Vuelve a estado SEGUIR_LINEA
-```
-
-**Si NO recupera en 5s:**
-```
-1. No se contempla esa posibilidad, significaría el suspenso.
 ```
 
 ---
