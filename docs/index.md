@@ -173,6 +173,9 @@ El Arduino implementa **multitarea cooperativa** utilizando FreeRTOS, permitiend
 | `ultrasonic_task` | 30 ms | 128 bytes | 3 (Alta) | Medir distancia constantemente |
 | `move_task` | 10 ms | 256 bytes | 2 (Media) | Control PID y FSM |
 
+Observación: en la tarea de ultrasonido, cuando el sensor no detecta un obstáculo dentro de su rango programado, arroja un valor de 999 como distancia. Se destaca este hecho por haber sucedido en el examen durante la vuelta más rápida. El coche derrapo al final y los sensores quedaron apuntando a la nada.El esp32 arrojo los datos relacionados con esta medida.
+En la misma tarea se le ha aumentado ligeramente el rango de frenado para que pare dentro de los parámetros válidos, en función de la velocidad que lleva.
+
 **Ventajas del enfoque RTOS:**
 - Permite que se este leyendo de manera casi constante el ultrasonido, lo cual es imoprescindible para la detección del obstáculo final.
 - La gestión del código se realiza de manera modular, lo que facilita mucho la modificación del sistema.
